@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 
 @SpringBootApplication
-@EntityScan(basePackages = "model")
+@EntityScan(basePackages = "com.stage.model")
 public class StageSpringApplication {
 
 	public static void main(String[] args) {
