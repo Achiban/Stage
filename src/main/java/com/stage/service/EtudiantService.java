@@ -38,7 +38,16 @@ public class EtudiantService {
 
     //suppression d'un etudiant
     public void deleteEtudiant(Long id) {
+        if (!etudiant_repository.existsById(id)) {
+            throw new IllegalArgumentException("Etudiant not found with id: " + id);
+        }
         etudiant_repository.deleteById(id);
+    }
+
+    // affichage d'un etudiant par id
+    public Etudiant getEtudiantById(Long id) {
+        return etudiant_repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Etudiant not found with id: " + id));
     }
 
     //modification d'un etudiant
