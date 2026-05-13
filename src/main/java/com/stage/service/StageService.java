@@ -1,7 +1,9 @@
 package com.stage.service;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -18,27 +20,13 @@ public class StageService {
 
     // Add a new stage
     public Stage saveStage(Stage stage) {
-        if (stage.getSujet() == null || stage.getSujet().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage sujet cannot be empty");
-        }
-        if (stage.getDate_debut() == null) {
-            throw new IllegalArgumentException("Stage date_debut cannot be null");
-        }
-        if (stage.getDate_fin() == null) {
-            throw new IllegalArgumentException("Stage date_fin cannot be null");
-        }
-        if (stage.getDate_debut().after(stage.getDate_fin())) {
-            throw new IllegalArgumentException("Date debut cannot be after date fin");
-        }
-        if (stage.getDescription() == null || stage.getDescription().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage description cannot be empty");
-        }
-        if (stage.getObjectifs() == null || stage.getObjectifs().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage objectifs cannot be empty");
-        }
+        validateStage(stage);
 
         if (repo.existsBySujet(stage.getSujet())) {
             throw new IllegalArgumentException("Stage with sujet '" + stage.getSujet() + "' already exists");
+        }
+        if (repo.existsByEtudiantId(stage.getEtudiant().getId_etudiant())) {
+            throw new IllegalArgumentException("Cet etudiant a deja un stage affecte");
         }
 
         return repo.save(stage);
@@ -61,28 +49,14 @@ public class StageService {
         Stage existingStage = repo.findById(stage.getId_Stage())
                 .orElseThrow(() -> new IllegalArgumentException("Stage not found with id: " + stage.getId_Stage()));
 
-        if (stage.getSujet() == null || stage.getSujet().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage sujet cannot be empty");
-        }
-        if (stage.getDate_debut() == null) {
-            throw new IllegalArgumentException("Stage date_debut cannot be null");
-        }
-        if (stage.getDate_fin() == null) {
-            throw new IllegalArgumentException("Stage date_fin cannot be null");
-        }
-        if (stage.getDate_debut().after(stage.getDate_fin())) {
-            throw new IllegalArgumentException("Date debut cannot be after date fin");
-        }
-        if (stage.getDescription() == null || stage.getDescription().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage description cannot be empty");
-        }
-        if (stage.getObjectifs() == null || stage.getObjectifs().trim().isEmpty()) {
-            throw new IllegalArgumentException("Stage objectifs cannot be empty");
-        }
+        validateStage(stage);
 
         // Check if new sujet already exists (and it's not the same stage)
         if (!existingStage.getSujet().equals(stage.getSujet()) && repo.existsBySujet(stage.getSujet())) {
             throw new IllegalArgumentException("Stage with sujet '" + stage.getSujet() + "' already exists");
+        }
+        if (repo.existsByEtudiantIdAndIdNot(stage.getEtudiant().getId_etudiant(), stage.getId_Stage())) {
+            throw new IllegalArgumentException("Cet etudiant a deja un autre stage affecte");
         }
 
         return repo.save(stage);
@@ -123,8 +97,88 @@ public class StageService {
         return repo.searchStages(searchTerm);
     }
 
+    public List<Stage> getStagesByFiliere(Long filiereId) {
+        return repo.findByFiliereId(filiereId);
+    }
+
+    public List<Stage> getStagesByAnneeUniversitaire(String anneeUniversitaire) {
+        return repo.findByAnneeUniversitaire(anneeUniversitaire);
+    }
+
+    public List<Stage> filterStages(Long filiereId, String anneeUniversitaire) {
+        return repo.filterStages(filiereId, anneeUniversitaire);
+    }
+
+    public Map<String, Object> getDashboard() {
+        Map<String, Object> dashboard = new LinkedHashMap<>();
+        List<Stage> stages = repo.findAll();
+
+        long stagesAvecEncadrementComplet = stages.stream()
+                .filter(stage -> stage.getEncadrementAcademique() != null
+                        && stage.getEncadrantEntreprise() != null
+                        && stage.getEntreprise() != null
+                        && stage.getEtudiant() != null)
+                .count();
+
+        dashboard.put("totalStages", stages.size());
+        dashboard.put("totalStagesAffectes", stages.stream().filter(stage -> stage.getEtudiant() != null).count());
+        dashboard.put("totalStagesAvecEncadrementComplet", stagesAvecEncadrementComplet);
+        dashboard.put("stagesParAnnee", repo.countStagesByAnnee());
+        return dashboard;
+    }
+
     // Get all stages
     public List<Stage> getAll() {
         return repo.findAll();
+    }
+
+    private void validateStage(Stage stage) {
+        if (stage.getSujet() == null || stage.getSujet().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage sujet cannot be empty");
+        }
+        if (stage.getDate_debut() == null) {
+            throw new IllegalArgumentException("Stage date_debut cannot be null");
+        }
+        if (stage.getDate_fin() == null) {
+            throw new IllegalArgumentException("Stage date_fin cannot be null");
+        }
+        if (stage.getDate_debut().after(stage.getDate_fin())) {
+            throw new IllegalArgumentException("Date debut cannot be after date fin");
+        }
+        if (stage.getDescription() == null || stage.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage description cannot be empty");
+        }
+        if (stage.getObjectifs() == null || stage.getObjectifs().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage objectifs cannot be empty");
+        }
+        if (stage.getSolution() == null || stage.getSolution().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage solution cannot be empty");
+        }
+        if (stage.getDemarche() == null || stage.getDemarche().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage demarche cannot be empty");
+        }
+        if (stage.getOutils() == null || stage.getOutils().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage outils cannot be empty");
+        }
+        if (stage.getEnvironnement() == null || stage.getEnvironnement().trim().isEmpty()) {
+            throw new IllegalArgumentException("Stage environnement cannot be empty");
+        }
+        if (stage.getAnneeUniversitaire() == null || stage.getAnneeUniversitaire().trim().isEmpty()) {
+            throw new IllegalArgumentException("L'annee universitaire est obligatoire");
+        }
+        if (stage.getEtudiant() == null || stage.getEtudiant().getId_etudiant() == null) {
+            throw new IllegalArgumentException("L'etudiant affecte est obligatoire");
+        }
+        if (stage.getEntreprise() == null || stage.getEntreprise().getId_entreprise() == null) {
+            throw new IllegalArgumentException("L'entreprise d'accueil est obligatoire");
+        }
+        if (stage.getEncadrementAcademique() == null
+                || stage.getEncadrementAcademique().getId_encadrement_academique() == null) {
+            throw new IllegalArgumentException("L'encadrement academique est obligatoire");
+        }
+        if (stage.getEncadrantEntreprise() == null
+                || stage.getEncadrantEntreprise().getId_encadrant_entreprise() == null) {
+            throw new IllegalArgumentException("L'encadrant professionnel est obligatoire");
+        }
     }
 }

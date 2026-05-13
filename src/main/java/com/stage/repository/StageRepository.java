@@ -2,6 +2,7 @@ package com.stage.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,30 @@ public interface StageRepository extends JpaRepository<Stage, Long> {
     // Search stages by sujet, description, or objectifs containing
     @Query("SELECT s FROM Stage s WHERE LOWER(s.sujet) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(s.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(s.objectifs) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Stage> searchStages(@Param("searchTerm") String searchTerm);
+
+    @Query("SELECT s FROM Stage s WHERE s.etudiant.filiere.id = :filiereId")
+    List<Stage> findByFiliereId(@Param("filiereId") Long filiereId);
+
+    List<Stage> findByAnneeUniversitaire(String anneeUniversitaire);
+
+    @Query("""
+            SELECT s FROM Stage s
+            WHERE (:filiereId IS NULL OR s.etudiant.filiere.id = :filiereId)
+              AND (:anneeUniversitaire IS NULL OR s.anneeUniversitaire = :anneeUniversitaire)
+            """)
+    List<Stage> filterStages(@Param("filiereId") Long filiereId,
+            @Param("anneeUniversitaire") String anneeUniversitaire);
+
+    @Query("SELECT COUNT(s) > 0 FROM Stage s WHERE s.etudiant.id_etudiant = :etudiantId")
+    boolean existsByEtudiantId(@Param("etudiantId") Long etudiantId);
+
+    @Query("""
+            SELECT COUNT(s) > 0 FROM Stage s
+            WHERE s.etudiant.id_etudiant = :etudiantId
+              AND s.Id_Stage <> :stageId
+            """)
+    boolean existsByEtudiantIdAndIdNot(@Param("etudiantId") Long etudiantId, @Param("stageId") Long stageId);
+
+    @Query("SELECT s.anneeUniversitaire as annee, COUNT(s) as total FROM Stage s GROUP BY s.anneeUniversitaire")
+    List<Map<String, Object>> countStagesByAnnee();
 }
