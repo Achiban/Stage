@@ -8,19 +8,37 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.stage.model.Stage;
+import com.stage.repository.EncadrantEntrepriseRepository;
+import com.stage.repository.EncadrementAcademiqueRepository;
+import com.stage.repository.EntrepriseRepository;
+import com.stage.repository.EtudiantRepository;
 import com.stage.repository.StageRepository;
 
 @Service
 public class StageService {
     private final StageRepository repo;
+    private final EtudiantRepository etudiantRepository;
+    private final EntrepriseRepository entrepriseRepository;
+    private final EncadrementAcademiqueRepository encadrementAcademiqueRepository;
+    private final EncadrantEntrepriseRepository encadrantEntrepriseRepository;
 
-    public StageService(StageRepository repo) {
+    public StageService(
+            StageRepository repo,
+            EtudiantRepository etudiantRepository,
+            EntrepriseRepository entrepriseRepository,
+            EncadrementAcademiqueRepository encadrementAcademiqueRepository,
+            EncadrantEntrepriseRepository encadrantEntrepriseRepository) {
         this.repo = repo;
+        this.etudiantRepository = etudiantRepository;
+        this.entrepriseRepository = entrepriseRepository;
+        this.encadrementAcademiqueRepository = encadrementAcademiqueRepository;
+        this.encadrantEntrepriseRepository = encadrantEntrepriseRepository;
     }
 
     // Add a new stage
     public Stage saveStage(Stage stage) {
         validateStage(stage);
+        attachRelations(stage);
 
         if (repo.existsBySujet(stage.getSujet())) {
             throw new IllegalArgumentException("Stage with sujet '" + stage.getSujet() + "' already exists");
@@ -50,6 +68,7 @@ public class StageService {
                 .orElseThrow(() -> new IllegalArgumentException("Stage not found with id: " + stage.getId_Stage()));
 
         validateStage(stage);
+        attachRelations(stage);
 
         // Check if new sujet already exists (and it's not the same stage)
         if (!existingStage.getSujet().equals(stage.getSujet()) && repo.existsBySujet(stage.getSujet())) {
@@ -130,6 +149,26 @@ public class StageService {
     // Get all stages
     public List<Stage> getAll() {
         return repo.findAll();
+    }
+
+    private void attachRelations(Stage stage) {
+        stage.setEtudiant(
+                etudiantRepository.findById(stage.getEtudiant().getId_etudiant())
+                        .orElseThrow(() -> new IllegalArgumentException("Etudiant not found with id: "
+                                + stage.getEtudiant().getId_etudiant())));
+        stage.setEntreprise(
+                entrepriseRepository.findById(stage.getEntreprise().getId_entreprise())
+                        .orElseThrow(() -> new IllegalArgumentException("Entreprise not found with id: "
+                                + stage.getEntreprise().getId_entreprise())));
+        stage.setEncadrementAcademique(
+                encadrementAcademiqueRepository
+                        .findById(stage.getEncadrementAcademique().getId_encadrement_academique())
+                        .orElseThrow(() -> new IllegalArgumentException("Encadrement not found with id: "
+                                + stage.getEncadrementAcademique().getId_encadrement_academique())));
+        stage.setEncadrantEntreprise(
+                encadrantEntrepriseRepository.findById(stage.getEncadrantEntreprise().getId_encadrant_entreprise())
+                        .orElseThrow(() -> new IllegalArgumentException("Encadrant not found with id: "
+                                + stage.getEncadrantEntreprise().getId_encadrant_entreprise())));
     }
 
     private void validateStage(Stage stage) {

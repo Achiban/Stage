@@ -1,5 +1,7 @@
 package com.stage.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,9 @@ import lombok.Setter;
 public class Entreprise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_entreprise;
+    @Column(name = "id_entreprise")
+    @JsonAlias("id_entreprise")
+    private Long id;
 
     @Column(name = "nom", nullable = false, length = 50)
     private String nom;
@@ -44,6 +48,14 @@ public class Entreprise {
     @OneToOne
     @JoinColumn(name = "id_encadrant_entreprise")
     private Encadrant_Entreprise encadrantEntreprise;
+
+    public Long getId_entreprise() {
+        return id;
+    }
+
+    public void setId_entreprise(Long idEntreprise) {
+        this.id = idEntreprise;
+    }
 }
 //• Nom de l’entreprise
 //• Coordonnées (adresse, téléphone, email)

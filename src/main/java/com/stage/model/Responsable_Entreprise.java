@@ -1,5 +1,7 @@
 package com.stage.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +19,9 @@ public class Responsable_Entreprise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_responsable_entreprise;
+    @Column(name = "id_responsable_entreprise")
+    @JsonAlias("id_responsable_entreprise")
+    private Long id;
 
     private String nom;
 
@@ -26,4 +30,12 @@ public class Responsable_Entreprise {
 
     @Column(name = "email", nullable = false, length = 100)
     private String email;
+
+    public Long getId_responsable_entreprise() {
+        return id;
+    }
+
+    public void setId_responsable_entreprise(Long idResponsableEntreprise) {
+        this.id = idResponsableEntreprise;
+    }
 }

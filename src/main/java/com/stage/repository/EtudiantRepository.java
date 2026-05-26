@@ -12,7 +12,7 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
 
     Boolean existsByEmail(String email);
 
-    Boolean existsByCNE(String CNE);
+    Boolean existsByCne(String cne);
 
     Boolean existsByTelephone(String telephone);
 
@@ -20,7 +20,7 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
             "(LOWER(c.nom) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(c.prenom) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(c.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-            "LOWER(c.CNE) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(c.cne) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(c.telephone) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     List<Etudiant> searchEtudiants(@Param("searchTerm") String searchTerm);
 

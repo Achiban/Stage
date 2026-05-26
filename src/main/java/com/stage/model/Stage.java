@@ -2,6 +2,7 @@ package com.stage.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -24,7 +25,9 @@ import lombok.Setter;
 public class Stage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id_Stage;
+    @Column(name = "Id_Stage")
+    @JsonAlias("Id_Stage")
+    private Long id;
 
     @Column(name = "sujet", nullable = false, length = 255)
     private String sujet;
@@ -75,6 +78,14 @@ public class Stage {
     @ManyToOne
     @JoinColumn(name = "id_encadrant_entreprise", nullable = false)
     private Encadrant_Entreprise encadrantEntreprise;
+
+    public Long getId_Stage() {
+        return id;
+    }
+
+    public void setId_Stage(Long idStage) {
+        this.id = idStage;
+    }
 }
 
 //• Sujet du stage PFE

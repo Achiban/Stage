@@ -1,5 +1,7 @@
 package com.stage.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +19,9 @@ public class Encadrant_Entreprise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_encadrant_entreprise;
+    @Column(name = "id_encadrant_entreprise")
+    @JsonAlias("id_encadrant_entreprise")
+    private Long id;
 
     private String nom;
 
@@ -26,4 +30,12 @@ public class Encadrant_Entreprise {
 
     @Column(length = 20)
     private String telephone;
+
+    public Long getId_encadrant_entreprise() {
+        return id;
+    }
+
+    public void setId_encadrant_entreprise(Long idEncadrantEntreprise) {
+        this.id = idEncadrantEntreprise;
+    }
 }

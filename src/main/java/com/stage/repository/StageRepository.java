@@ -50,13 +50,13 @@ public interface StageRepository extends JpaRepository<Stage, Long> {
     List<Stage> filterStages(@Param("filiereId") Long filiereId,
             @Param("anneeUniversitaire") String anneeUniversitaire);
 
-    @Query("SELECT COUNT(s) > 0 FROM Stage s WHERE s.etudiant.id_etudiant = :etudiantId")
+    @Query("SELECT COUNT(s) > 0 FROM Stage s WHERE s.etudiant.id = :etudiantId")
     boolean existsByEtudiantId(@Param("etudiantId") Long etudiantId);
 
     @Query("""
             SELECT COUNT(s) > 0 FROM Stage s
-            WHERE s.etudiant.id_etudiant = :etudiantId
-              AND s.Id_Stage <> :stageId
+            WHERE s.etudiant.id = :etudiantId
+              AND s.id <> :stageId
             """)
     boolean existsByEtudiantIdAndIdNot(@Param("etudiantId") Long etudiantId, @Param("stageId") Long stageId);
 

@@ -27,7 +27,7 @@ public class EtudiantService {
         if (etudiant_repository.existsByEmail(etudiant.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-        if (etudiant_repository.existsByCNE(etudiant.getCNE())) {
+        if (etudiant_repository.existsByCne(etudiant.getCNE())) {
             throw new IllegalArgumentException("CNE already exists");
         }
         if (etudiant_repository.existsByTelephone(etudiant.getTelephone())) {
@@ -61,7 +61,7 @@ public class EtudiantService {
         if (!existingEtudiant.getEmail().equals(etudiant.getEmail()) && etudiant_repository.existsByEmail(etudiant.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-        if (!existingEtudiant.getCNE().equals(etudiant.getCNE()) && etudiant_repository.existsByCNE(etudiant.getCNE())) {
+        if (!existingEtudiant.getCNE().equals(etudiant.getCNE()) && etudiant_repository.existsByCne(etudiant.getCNE())) {
             throw new IllegalArgumentException("CNE already exists");
         }
         if (!existingEtudiant.getTelephone().equals(etudiant.getTelephone()) && etudiant_repository.existsByTelephone(etudiant.getTelephone())) {
